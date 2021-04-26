@@ -30,6 +30,15 @@ def command(settings):
 
         matches = matches[:int(settings.limit)]
 
+    if settings.team:
+        # TODO handle team being present in only 1 arena of several
+        matches = [
+            slot
+            for slot in matches
+            for arena_slot in slot.values()
+            if settings.team in arena_slot.teams
+        ]
+
     def teams_str(teams):
         return ":".join(tla.center(5) if tla else "  -  " for tla in teams)
 
@@ -82,5 +91,9 @@ def add_subparser(subparsers):
         '--limit',
         default=15,
         help="how many matches to show (default: %(default)s)",
+    )
+    parser.add_argument(
+        '--team',
+        help="restrict to showing matches containing a particular team",
     )
     parser.set_defaults(func=command)
