@@ -101,12 +101,13 @@ def command(settings):
     match_results: List[MatchResult] = []
 
     filter_tla = settings.tla
+    skip_filter = not filter_tla
 
     for slots in comp.schedule.matches:
         match_results.extend(
             collect_match_info(comp, match)
             for match in slots.values()
-            if not filter_tla or filter_tla in match.teams
+            if filter_tla in match.teams or skip_filter
         )
 
     if len(match_results) == 0:
