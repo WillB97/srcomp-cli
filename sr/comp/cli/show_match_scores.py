@@ -5,10 +5,6 @@ from sr.comp.types import TLA, GamePoints, ArenaName, MatchNumber
 from sr.comp.scores import LeaguePosition
 
 
-DISPLAY_NAME_WIDTH = 18
-ARENA_NAME_WIDTH = 12
-
-
 class MatchCorner(NamedTuple):
     tla: TLA
     ranking: Union[LeaguePosition, str]  # to allow "???" to be used for unknown scores
