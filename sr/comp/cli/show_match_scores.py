@@ -116,11 +116,9 @@ def command(settings):
 
     # Calculate "Display Name" and "Arena" column widths
     display_name_width = 12  # start with width of label
-    for match in match_results:
-        display_name_width = max(display_name_width, len(match.display_name))
-
     arena_name_width = 5  # start with width of label
     for match in match_results:
+        display_name_width = max(display_name_width, len(match.display_name))
         arena_name_width = max(arena_name_width, len(match.arena))
 
     # TODO hide arena column w/ single arena?
