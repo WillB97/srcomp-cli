@@ -50,12 +50,20 @@ def collect_match_info(comp, match) -> MatchResult:
     for corner, team in enumerate(match.teams):
         match_id = (match.arena, match.num)
 
-        corner_data[corner] = MatchCorner(
-            tla=team,
-            ranking=ranking[team],
-            game=game_points[team],
-            league=league_points[team],
-        )
+        if team:  # corner occupied
+            corner_data[corner] = MatchCorner(
+                tla=team,
+                ranking=ranking[team],
+                game=game_points[team],
+                league=league_points[team],
+            )
+        else:
+            corner_data[corner] = MatchCorner(
+                tla='',
+                ranking='',
+                game='',
+                league='',
+            )
 
     return MatchResult(
         num=match.num,
