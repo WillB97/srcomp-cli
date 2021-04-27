@@ -123,7 +123,9 @@ def command(settings):
 
     # TODO hide arena column w/ single arena?
 
-    print_heading(len(match_results[0].corners), display_name_width, arena_name_width)
+    num_teams_per_arena = getattr(comp, 'num_teams_per_arena', len(comp.corners))
+
+    print_heading(num_teams_per_arena, display_name_width, arena_name_width)
 
     for match in match_results:
         print_match(match, display_name_width, arena_name_width)
