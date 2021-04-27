@@ -3,7 +3,6 @@ __description__ = "Show the game and league points achieved for each match"
 from typing import Dict, List, Union, NamedTuple
 from sr.comp.types import TLA, GamePoints, ArenaName, MatchNumber
 from sr.comp.scores import LeaguePosition
-from sr.comp.ranker import LeaguePoints
 
 
 DISPLAY_NAME_WIDTH = 18
@@ -14,7 +13,7 @@ class MatchCorner(NamedTuple):
     tla: TLA
     ranking: Union[LeaguePosition, str]  # to allow "???" to be used for unknown scores
     game: Union[GamePoints, str]
-    league: Union[LeaguePoints, str]
+    league: Union[int, str]
 
 
 class MatchResult(NamedTuple):
