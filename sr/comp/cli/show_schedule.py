@@ -31,7 +31,6 @@ def command(settings):
         matches = matches[:int(settings.limit)]
 
     if settings.team:
-        # TODO handle team being present in only 1 arena of several
         matches = [
             slot
             for slot in matches
