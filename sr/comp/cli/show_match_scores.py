@@ -115,7 +115,7 @@ def command(settings):
     match_results: List[MatchResult] = []
 
     filter_tla = settings.tla
-    skip_filter = not filter_tla
+    skip_filter = filter_tla is None
 
     for slots in comp.schedule.matches:
         match_results.extend(
