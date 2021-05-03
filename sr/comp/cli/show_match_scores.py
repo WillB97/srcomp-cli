@@ -141,7 +141,7 @@ def command(settings):
 
     # TODO hide arena column w/ single arena?
 
-    num_teams_per_arena = getattr(comp, 'num_teams_per_arena', len(comp.corners))
+    num_teams_per_arena = comp.num_teams_per_arena
 
     print_heading(num_teams_per_arena, display_name_width, arena_name_width)
 
