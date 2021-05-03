@@ -1,15 +1,15 @@
 __description__ = "Show the game and league points achieved for each match"
 
-from typing import Dict, List, Union, NamedTuple
+from typing import Dict, List, Optional, NamedTuple
 from sr.comp.types import TLA, GamePoints, ArenaName, MatchNumber
 from sr.comp.scores import LeaguePosition
 
 
 class MatchCorner(NamedTuple):
     tla: TLA
-    ranking: Union[LeaguePosition, str]  # to allow "???" to be used for unknown scores
-    game: Union[GamePoints, str]
-    league: Union[int, str]
+    ranking: Optional[LeaguePosition]
+    game: Optional[GamePoints]
+    league: Optional[int]
 
 
 class MatchResult(NamedTuple):
@@ -41,9 +41,9 @@ def collect_match_info(comp, match) -> MatchResult:
         game_points = {}
         ranking = {}
         for team in match.teams:
-            league_points[team] = "???"
-            game_points[team] = "???"
-            ranking[team] = "???"
+            league_points[team] = None
+            game_points[team] = None
+            ranking[team] = None
 
     corner_data: Dict[int, MatchCorner] = {}
 
@@ -97,11 +97,11 @@ def print_match(match: MatchResult, name_width, arena_name_width):
     print_col(match.display_name.center(name_width))
     print_col(match.arena.center(arena_name_width))
 
-    for corner in match.corners.values():
-        print_col(f" {corner.tla:<4}")
-        print_col(f"{corner.ranking:>3} ")
-        print_col(f"{corner.game:>3} ")
-        print_col(f"{corner.league:>5} ")
+    for tla, ranking, game, league in match.corners.values():
+        print_col(f" {tla:<4}")
+        print_col(f"{'??' if ranking is None else ranking:>3} ")
+        print_col(f"{'???' if game is None else game:>3} ")
+        print_col(f"{'??' if league is None else league:>5} ")
     print()
 
 
