@@ -1,8 +1,9 @@
-__description__ = "Show the game and league points achieved for each match"
+from typing import Dict, List, NamedTuple, Optional
 
-from typing import Dict, List, Optional, NamedTuple
-from sr.comp.types import TLA, GamePoints, ArenaName, MatchNumber
 from sr.comp.scores import LeaguePosition
+from sr.comp.types import ArenaName, GamePoints, MatchNumber, TLA
+
+__description__ = "Show the game and league points achieved for each match"
 
 
 class MatchCorner(NamedTuple):
@@ -19,7 +20,7 @@ class MatchResult(NamedTuple):
     corners: Dict[int, MatchCorner]
 
 
-def collect_match_info(comp, match) -> MatchResult:
+def collect_match_info(comp, match):
     from sr.comp.match_period import MatchType
     from sr.comp.scores import degroup
 
@@ -74,7 +75,7 @@ def collect_match_info(comp, match) -> MatchResult:
 
 
 def print_col(text):
-        print(text, end='|')
+    print(text, end='|')
 
 
 def print_heading(num_corners, name_width, arena_name_width):
@@ -85,7 +86,7 @@ def print_heading(num_corners, name_width, arena_name_width):
 
     print_col("Display Name".center(name_width))
     print_col("Arena".center(arena_name_width))
-    for idx in range(num_corners):
+    for _ in range(num_corners):
         print_col("TLA".center(5))
         print_col("Rank")
         print_col("Game")
@@ -93,7 +94,7 @@ def print_heading(num_corners, name_width, arena_name_width):
     print()
 
 
-def print_match(match: MatchResult, name_width, arena_name_width):
+def print_match(match: MatchResult, name_width: int, arena_name_width: int) -> None:
     print_col(match.display_name.center(name_width))
     print_col(match.arena.center(arena_name_width))
 
