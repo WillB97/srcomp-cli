@@ -125,7 +125,7 @@ def command(settings):
         )
 
     if len(match_results) == 0:
-        print("Not matches found, TLA may be invalid")
+        print("No matches found, TLA may be invalid")
         return
 
     # Calculate "Display Name" and "Arena" column widths
