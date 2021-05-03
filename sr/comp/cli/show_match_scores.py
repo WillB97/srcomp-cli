@@ -74,40 +74,34 @@ def collect_match_info(comp, match):
     )
 
 
-def print_col(text):
-    print(text, end='|')
+def generate_displayed_headings(num_corners: int) -> List[str]:
+    displayed_heading = ["Display Name", "Arena"]
 
-
-def print_heading(num_corners, name_width, arena_name_width):
-    print_col("".center(name_width + 1 + arena_name_width))
     for idx in range(num_corners):
-        print_col(f"Zone {idx}".center(22))
-    print()
+        displayed_heading.append(f"TLA {idx}")
+        displayed_heading.append("Rank")
+        displayed_heading.append("Game")
+        displayed_heading.append("League")
 
-    print_col("Display Name".center(name_width))
-    print_col("Arena".center(arena_name_width))
-    for _ in range(num_corners):
-        print_col("TLA".center(5))
-        print_col("Rank")
-        print_col("Game")
-        print_col("League")
-    print()
+    return displayed_heading
 
 
-def print_match(match: MatchResult, name_width: int, arena_name_width: int) -> None:
-    print_col(match.display_name.center(name_width))
-    print_col(match.arena.center(arena_name_width))
+def generate_displayed_match(match: MatchResult) -> List[str]:
+    displayed_match: List[str] = [match.display_name, match.arena]
 
     for tla, ranking, game, league in match.corners.values():
-        print_col(f" {tla:<4}")
-        print_col(f"{'??' if ranking is None else ranking:>3} ")
-        print_col(f"{'???' if game is None else game:>3} ")
-        print_col(f"{'??' if league is None else league:>5} ")
-    print()
+        displayed_match.append(tla)
+        displayed_match.append("??" if ranking is None else str(ranking))
+        displayed_match.append("???" if game is None else str(game))
+        displayed_match.append("??" if league is None else str(league))
+
+    return displayed_match
 
 
 def command(settings):
     import os.path
+
+    from tabulate import tabulate
 
     from sr.comp.comp import SRComp
 
@@ -129,25 +123,23 @@ def command(settings):
         print("No matches found, TLA may be invalid")
         return
 
-    # Calculate "Display Name" and "Arena" column widths
-    display_name_width = 12  # start with width of label
-    arena_name_width = 5  # start with width of label
-    for match in match_results:
-        display_name_width = max(display_name_width, len(match.display_name))
-        arena_name_width = max(arena_name_width, len(match.arena))
-
-    # Add some padding
-    display_name_width += 2
-    arena_name_width += 2
-
     # TODO hide arena column w/ single arena?
 
     num_teams_per_arena = comp.num_teams_per_arena
 
-    print_heading(num_teams_per_arena, display_name_width, arena_name_width)
+    displayed_matches = [
+        generate_displayed_match(match)
+        for match in match_results
+    ]
 
-    for match in match_results:
-        print_match(match, display_name_width, arena_name_width)
+    print(tabulate(
+        displayed_matches,
+        headers=generate_displayed_headings(num_teams_per_arena),
+        tablefmt='pretty',
+        colalign=(
+            ('center', 'center') + ('center', 'right', 'right', 'right') * num_teams_per_arena
+        ),
+    ))
 
 
 def add_subparser(subparsers):
