@@ -4,6 +4,7 @@ from sr.comp.scores import LeaguePosition
 from sr.comp.types import ArenaName, GamePoints, MatchNumber, TLA
 
 __description__ = "Show the game and league points achieved for each match"
+DISPLAYED_ZONES = 2
 
 
 class MatchCorner(NamedTuple):
@@ -75,10 +76,11 @@ def collect_match_info(comp, match):
 
 
 def generate_displayed_headings(num_corners: int) -> List[str]:
-    displayed_heading = ["Display Name", "Arena"]
+    displayed_heading = ["Match"]
 
-    for idx in range(num_corners):
-        displayed_heading.append(f"TLA {idx}")
+    for _ in range(num_corners):
+        displayed_heading.append("Zone")
+        displayed_heading.append("TLA")
         displayed_heading.append("Rank")
         displayed_heading.append("Game")
         displayed_heading.append("League")
@@ -86,14 +88,34 @@ def generate_displayed_headings(num_corners: int) -> List[str]:
     return displayed_heading
 
 
-def generate_displayed_match(match: MatchResult) -> List[str]:
-    displayed_match: List[str] = [match.display_name, match.arena]
+def generate_displayed_match(match: MatchResult, num_corners: int) -> List[List[str]]:
+    displayed_match = []
+    displayed_corners = []
 
-    for tla, ranking, game, league in match.corners.values():
-        displayed_match.append(tla)
-        displayed_match.append("??" if ranking is None else str(ranking))
-        displayed_match.append("???" if game is None else str(game))
-        displayed_match.append("??" if league is None else str(league))
+    for zone, (tla, ranking, game, league) in match.corners.items():
+        displayed_corner: List[str] = []
+
+        displayed_corner.append(str(zone))
+        displayed_corner.append(tla)
+        displayed_corner.append("??" if ranking is None else str(ranking))
+        displayed_corner.append("??" if game is None else str(game))
+        displayed_corner.append("??" if league is None else str(league))
+
+        displayed_corners.append(displayed_corner)
+
+    for corner in range(0, num_corners, DISPLAYED_ZONES):
+        if corner == 0:
+            match_row = [f"{match.display_name} in {match.arena}"]
+        else:
+            match_row = [""]
+
+        for idx in range(DISPLAYED_ZONES):
+            try:
+                match_row.extend(displayed_corners[corner + idx])
+            except IndexError:
+                match_row.extend(['', '', '', ''])
+
+        displayed_match.append(match_row)
 
     return displayed_match
 
@@ -123,21 +145,19 @@ def command(settings):
         print("No matches found, TLA may be invalid")
         return
 
-    # TODO hide arena column w/ single arena?
-
     num_teams_per_arena = comp.num_teams_per_arena
 
-    displayed_matches = [
-        generate_displayed_match(match)
-        for match in match_results
-    ]
+    displayed_matches: List[List[str]] = []
+
+    for match in match_results:
+        displayed_matches.extend(generate_displayed_match(match, num_teams_per_arena))
 
     print(tabulate(
         displayed_matches,
-        headers=generate_displayed_headings(num_teams_per_arena),
+        headers=generate_displayed_headings(DISPLAYED_ZONES),
         tablefmt='pretty',
         colalign=(
-            ('center', 'center') + ('center', 'right', 'right', 'right') * num_teams_per_arena
+            ('center',) + ('right', 'center', 'right', 'right', 'right') * DISPLAYED_ZONES
         ),
     ))
 
