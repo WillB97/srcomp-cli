@@ -75,6 +75,17 @@ def collect_match_info(comp, match):
     )
 
 
+def match_index(matches, match_num):
+    "Returns the index of the first slot that contains the given match number"
+    for idx, slots in enumerate(matches):
+        for match in slots.values():
+            if match.num == match_num:
+                return idx
+
+    # if no match is found use the last one
+    return idx
+
+
 def generate_displayed_headings(num_corners: int) -> List[str]:
     displayed_heading = ["Match"]
 
@@ -134,7 +145,19 @@ def command(settings):
     filter_tla = settings.tla
     skip_filter = filter_tla is None
 
-    for slots in comp.schedule.matches:
+    if not settings.all and skip_filter:
+        # get the index of the last scored match
+        end_match = match_index(
+            comp.schedule.matches,
+            comp.scores.last_scored_match,
+        ) + 1  # include last scored match in results
+        scan_matches = comp.schedule.matches[
+            max(0, end_match-int(settings.limit)):end_match
+        ]
+    else:
+        scan_matches = comp.schedule.matches
+
+    for slots in scan_matches:
         match_results.extend(
             collect_match_info(comp, match)
             for match in slots.values()
@@ -175,6 +198,16 @@ def add_subparser(subparsers):
     parser.add_argument(
         'tla',
         nargs='?',
-        help="filter to matches containing this TLA",
+        help="filter to matches containing this TLA (ignores --limit)",
+    )
+    parser.add_argument(
+        '--all',
+        action='store_true',
+        help="show all matches (overrides --limit)",
+    )
+    parser.add_argument(
+        '--limit',
+        default=15,
+        help="how many recently scored matches to show (default: %(default)s)",
     )
     parser.set_defaults(func=command)
