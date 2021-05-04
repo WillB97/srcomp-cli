@@ -1,6 +1,8 @@
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List, Mapping, NamedTuple, Optional
 
-from sr.comp.scores import LeaguePosition
+from sr.comp.comp import SRComp
+from sr.comp.match_period import Match, MatchSlot
+from sr.comp.scores import BaseScores, LeaguePosition
 from sr.comp.types import ArenaName, GamePoints, MatchNumber, TLA
 
 __description__ = "Show the game and league points achieved for each match"
@@ -8,7 +10,7 @@ DISPLAYED_ZONES = 2
 
 
 class MatchCorner(NamedTuple):
-    tla: TLA
+    tla: Optional[TLA]
     ranking: Optional[LeaguePosition]
     game: Optional[GamePoints]
     league: Optional[int]
@@ -21,9 +23,14 @@ class MatchResult(NamedTuple):
     corners: Dict[int, MatchCorner]
 
 
-def collect_match_info(comp, match):
+def collect_match_info(comp: SRComp, match: Match) -> MatchResult:
     from sr.comp.match_period import MatchType
     from sr.comp.scores import degroup
+
+    score_data: BaseScores
+    league_points: Mapping[TLA, Optional[int]]
+    game_points: Mapping[TLA, Optional[GamePoints]]
+    ranking: Mapping[TLA, Optional[LeaguePosition]]
 
     if match.type == MatchType.knockout:
         score_data = comp.scores.knockout
@@ -43,9 +50,10 @@ def collect_match_info(comp, match):
         game_points = {}
         ranking = {}
         for team in match.teams:
-            league_points[team] = None
-            game_points[team] = None
-            ranking[team] = None
+            if team is not None:
+                league_points[team] = None
+                game_points[team] = None
+                ranking[team] = None
 
     corner_data: Dict[int, MatchCorner] = {}
 
@@ -61,10 +69,10 @@ def collect_match_info(comp, match):
             )
         else:
             corner_data[corner] = MatchCorner(
-                tla='',
-                ranking='',
-                game='',
-                league='',
+                tla=None,
+                ranking=None,
+                game=None,
+                league=None,
             )
 
     return MatchResult(
@@ -75,7 +83,7 @@ def collect_match_info(comp, match):
     )
 
 
-def match_index(matches, match_num):
+def match_index(matches: List[MatchSlot], match_num: int) -> int:
     "Returns the index of the first slot that contains the given match number"
     for idx, slots in enumerate(matches):
         for match in slots.values():
@@ -107,10 +115,13 @@ def generate_displayed_match(match: MatchResult, num_corners: int) -> List[List[
         displayed_corner: List[str] = []
 
         displayed_corner.append(str(zone))
-        displayed_corner.append(tla)
-        displayed_corner.append("??" if ranking is None else str(ranking))
-        displayed_corner.append("??" if game is None else str(game))
-        displayed_corner.append("??" if league is None else str(league))
+        if tla is not None:
+            displayed_corner.append(tla)
+            displayed_corner.append("??" if ranking is None else str(ranking))
+            displayed_corner.append("??" if game is None else str(game))
+            displayed_corner.append("??" if league is None else str(league))
+        else:
+            displayed_corner.extend(['', '', '', ''])
 
         displayed_corners.append(displayed_corner)
 
@@ -139,8 +150,6 @@ def command(settings):
     import os.path
 
     from tabulate import tabulate
-
-    from sr.comp.comp import SRComp
 
     comp = SRComp(os.path.realpath(settings.compstate))
 
