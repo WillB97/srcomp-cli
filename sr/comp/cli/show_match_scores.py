@@ -156,7 +156,14 @@ def command(settings):
     match_results: List[MatchResult] = []
 
     filter_tla = settings.tla
-    skip_filter = filter_tla is None
+    skip_filter = True
+
+    if filter_tla is not None:
+        skip_filter = False
+        # validate TLA exists
+        if filter_tla not in comp.teams.keys():
+            print('TLA not found')
+            return
 
     if not settings.all and skip_filter:
         # get the index of the last scored match
@@ -178,7 +185,7 @@ def command(settings):
         )
 
     if len(match_results) == 0:
-        print("No matches found, TLA may be invalid")
+        print("No matches found for current filters")
         return
 
     num_teams_per_arena = comp.num_teams_per_arena
