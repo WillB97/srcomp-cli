@@ -31,6 +31,10 @@ def command(settings):
         matches = matches[:int(settings.limit)]
 
     if settings.team:
+        if settings.team not in comp.teams.keys():
+            print('TLA not found')
+            return
+
         matches = [
             slot
             for slot in matches
@@ -93,6 +97,7 @@ def add_subparser(subparsers):
     )
     parser.add_argument(
         '--team',
-        help="restrict to showing matches containing a particular team",
+        metavar='TLA',
+        help="restrict to showing matches containing a particular team, specified by its TLA",
     )
     parser.set_defaults(func=command)
