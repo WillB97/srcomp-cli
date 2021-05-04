@@ -156,7 +156,7 @@ def command(settings):
             comp.scores.last_scored_match,
         ) + 1  # include last scored match in results
         scan_matches = comp.schedule.matches[
-            max(0, end_match-int(settings.limit)):end_match
+            max(0, end_match - int(settings.limit)):end_match
         ]
     else:
         scan_matches = comp.schedule.matches
