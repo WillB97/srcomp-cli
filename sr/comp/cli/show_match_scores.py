@@ -114,7 +114,10 @@ def generate_displayed_match(match: MatchResult, num_corners: int) -> List[List[
 
         displayed_corners.append(displayed_corner)
 
+    # wrap the number of zones to the DISPLAYED_ZONES constant
     for corner in range(0, num_corners, DISPLAYED_ZONES):
+        # first row displays the match and arena information,
+        # any extra rows leave this field blank
         if corner == 0:
             match_row = [f"{match.display_name} in {match.arena}"]
         else:
@@ -124,6 +127,7 @@ def generate_displayed_match(match: MatchResult, num_corners: int) -> List[List[
             try:
                 match_row.extend(displayed_corners[corner + idx])
             except IndexError:
+                # pad the number of corners out to a multiple of DISPLAYED_ZONES
                 match_row.extend(['', '', '', ''])
 
         displayed_match.append(match_row)
